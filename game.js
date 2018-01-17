@@ -1,71 +1,87 @@
-// Starting and stopping game
-
-var Word = require("./word.js");
+var word = require("./word.js");
 
 var inquirer = require("inquirer");
 
-var wordArray = ["hello", "wow", "stop", "pickup", "wow"];
 
-var rando = wordArray[Math.floor(Math.random() * wordArray.length)];
+var wordBank = ["baseball", "football", "hockey", "basketball", "rugby"];
 
-console.log(rando);
 
-function startGame() {
+var randomNumber = Math.floor(Math.random() * wordBank.length);
 
-	var WordConstruct = new Word(rando);
 
-	console.log(WordConstruct);
+function playGame(randomWord, wins, losses) {
 
-	WordConstruct.generateLetterArr();
+    var wordConstructor = new word(randomWord);
 
-	// console.log(WordConstruct);
+    // console.log(wordConstructor);
 
-	askForUserLetter();
+    wordConstructor.createLetters();
 
-	function askForUserLetter () {
-		inquirer.prompt([/* Pass your questions in here */
-			{
-				type: "input",
-				message: "Please guess a letter",
-				name: "userGuess"
-			}]).then(answers => {
-    // Use user feedback for... whatever!!
+    wordConstructor.displayWord();
 
-    var userGuess = answers.userGuess;
+    function askForLetter(remGuesses) {
+        inquirer.prompt([ /* Pass your questions in here */ {
+            type: "input",
+            message: "Please guess a letter",
+            name: "userGuess"
+        }]).then(answers => {
+            // Use user feedback for... whatever!!
 
-    // method to check for user guess in word
+            wordConstructor.checkUserGuess(answers.userGuess);
+            console.log("Wins:" + wins);
+            console.log("Losses: " + losses);
+            console.log("Remaining Guesses: " + wordConstructor.remainingGuesses);
 
-    
 
-    if(WordConstruct.counter != 0 && WordConstruct.underscores.join("") !=
-    	WordConstruct.word) {
-    	WordConstruct.checkForLetter(userGuess);
+            if (wordConstructor.remainingGuesses > 0) {
+                if (wordConstructor.solvedWord()) {
+                    console.log("You Won!");
+                    playAgain(++wins, losses);
 
-    	askForUserLetter();
+                } else {
+                    askForLetter();
+
+                }
+
+
+            } else {
+                console.log("You lose!");
+                playAgain(wins, ++losses);
+            }
+
+
+
+
+
+
+
+        });
     }
 
-    else if (WordConstruct.underscores.join("") !=
-    	WordConstruct.word){
-    	console.log("Congrats you won!");
-    }
-    else {
-    	console.log("you lost");
-    }
-
- 
-    
-    	
-    
-});
-
-
-
-	
+    askForLetter();
 
 }
 
+function playAgain(wins, losses) {
 
-	}
+    randomNumber = Math.floor(Math.random() * wordBank.length);
+    inquirer.prompt([ /* Pass your questions in here */ {
+        type: "confirm",
+        message: "Would you like to play again?",
+        name: "playAgain"
+    }]).then(answers => {
+        // Use user feedback for... whatever!!
+        if (answers.playAgain) {
 
-startGame();
+            playGame(wordBank[randomNumber], wins, losses);
 
+
+
+        } else {
+            console.log("Thanks for playing! Come back again soon!")
+        }
+    });
+}
+
+
+playGame(wordBank[randomNumber], 0, 0)

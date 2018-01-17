@@ -1,97 +1,77 @@
-// Used to create an object representing the current word the user is attempting to guess. 
-// This should contain word specific logic and data.
-
-// display a list of undersocres - need a method for this
-// update undersocres to show correct letters 
-// check to see if user guees is in the word
+var letter = require("./letter.js");
 
 
-// google var that = this
-
-var Letter = require("./letter.js");
-
-function Word(word) {
-
-	this.word = word;
-	// array to store underscores
-	this.underscores = [];
-	// array of Letters
-	this.letterConstructorArr = [];
-
-	this.counter = 9;
-
-	this.generateLetterArr = function() {
-		for(var i = 0; i < this.word.length; i++) {
-			this.letterConstructorArr.push(new Letter(this.word[i]))
-		}
-
-		console.log(this.letterConstructorArr);
-		this.generateUnderscores();
-	}
-
-	// generate underscores
-
-		// loop over the letterConstructorArr
-			// call showLetter on each Letter object
-			// store return value onto underscore Array
-			// show underscore array to console
-
-	this.generateUnderscores = function () {
-		for (var i = 0; i < this.letterConstructorArr.length; i++) {
-			this.underscores.push(this.letterConstructorArr[i].showLetter());
-		}
-		console.log(this.underscores.join(" "));
-	}
-
-	this.checkForLetter = function (userGuess) {
-
-		console.log(userGuess);
-
-		for (var i = 0; i < this.letterConstructorArr.length; i++) {
-			if(this.letterConstructorArr[i].updateLetterState(userGuess)) {
-				// console.log("Letter was found!!");
-				// return true;
-
-				this.underscores[i] = this.letterConstructorArr[i].showLetter();
-			}
+var Word = function(word) {
+    this.word = word;
+    this.underscoresArray = [];
+    this.wordArray = this.word.split("");
+    this.letterArray = [];
+    this.remainingGuesses = 5;
 
 
-		}
-		console.log(this.letterConstructorArr);
-		console.log(this.underscores.join(" "));
-		this.deincrementCounter(userGuess);
+    this.createLetters = function() {
+        // console.log("wordArray: " + this.wordArray);
 
-	}
+        for (let i = 0; i < this.wordArray.length; i++) {
+            this.letterArray.push(new letter(this.wordArray[i]));
+        }
 
-	this.deincrementCounter = function(userGuess) {
-		// underscore should now have the letter or not;
-		// loop through underscore again cehcking to see if the userGuess
-		// exists in underscores
+        // console.log("letterArray: " + this.letterArray);
+    }
 
-		// if it doesn't we will then deincrement counter;
-		if(this.underscores.indexOf(userGuess) === -1) { 
-			--this.counter;
-			
-			console.log("you have this " + this.counter + " guesses left");	
+    this.displayWord = function() {
 
-		}
-		else {
-			console.log("you have this " + this.counter + " guesses left");	
-		}
+        for (let i = 0; i < this.letterArray.length; i++) {
+            this.underscoresArray.push(this.letterArray[i].displayLetter());
+        }
+
+        console.log(this.underscoresArray.join(" "));
+
+    }
+
+    this.checkUserGuess = function(userGuess) {
+        this.underscoresArray = [];
+        this.incorrectGuess = false;
+        let indexCount = 0;
+        for (let i = 0; i < this.wordArray.length; i++) {
+            if (userGuess == this.wordArray[i]) {
+                // console.log("You found me");
+                ++indexCount;
+
+                this.letterArray[i].shown = true;
+            }
+        }
+
+        this.displayWord();
+
+        // console.log("indexCount: " + indexCount);
+
+        if (indexCount === 0) {
+            console.log("Sorry, that wasn't one of the letters");
+            --this.remainingGuesses;
+        }
+
+
+    }
 
 
 
+    this.solvedWord = function() {
+        let letterCount = 0
+        for (let i = 0; i < this.letterArray.length; i++) {
+            if (this.letterArray[i].shown) {
+                letterCount++
+            }
+        }
 
-	}
-
-
-
+        if (letterCount === this.letterArray.length) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 
 }
 
 
-
-
 module.exports = Word;
-
-
